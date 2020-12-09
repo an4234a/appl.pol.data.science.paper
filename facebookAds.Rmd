@@ -2,7 +2,7 @@
 title: "What Makes a Candidate goes Negative on Facebook: Case of US 2020 Presidential Election"
 author: 
   - Alan Nurcahyo^[American University]
-date: "2020-12-01"
+date: "2020-12-8"
 abstract: "It is widely accepted that a trailing candidate tends to go more negatively than a leading candidate in a political campaign. However, most research approached this problem as a single-shot event rather than seeing the campaign process as a dynamic process where a candidate continuously monitors their polls position and act accordingly. This study uses a dynamic causal inference framework to examine political advertisement in the United States 2020 Presidential election from Facebook Ads Library. I found that in the polling position affects the proportion of negative advertising in a political campaign. The relationship is positive, meaning that being in a trailing position, a candidate will increase their negative advertisement proportion."
 output: 
   pdf_document:
@@ -51,25 +51,26 @@ Based on the assumption that candidates are adjusting their campaign strategy in
 
 This paper uses advertisement data from Facebook and poll results by states. For exploratory analysis we will use training set (randomly selected 60 percent of dataset) to illustrate and explore the relationship between polling position and negativity. On confirmatory analysis we will use test set (dataset that were not selected as training). Test set will include a observation of proportion advertisement from candidate by party, by state and time period measured in week one to four.
 
-Picture below summarise how we design our research. This paper divide a time frame for campaign into a four week. Where X1 is the proportion of negative advertisement at the begining of the campaign (baseline/week 1 outcome). A1, A2, and A3 is a polling position of candidate in a state at the end of week one, two and three respectively. X2 and X3 is intermediate result, that is the proportion of negative advertisement for week two and three. Finally, Y is the outcome, that is the proportion of negative advertisement for the last week. This paper assumed that what happen in A1 will affects X2, what happen in A2 will affects X3 and so on. 
+Picture below summarise how we design our research. This paper divide a time frame for campaign into a four week. Where X1 is the proportion of negative advertisement at the begining of the campaign (baseline/week 1 outcome). A1, A2, and A3 is a polling position of candidate in a state at the end of week one, two and three respectively. X2 and X3 is intermediate result, that is the proportion of negative advertisement for week two and three. Finally, Y is the outcome, that is the proportion of negative advertisement in the last week. This paper assumed that what happen in A1 will affects (indicated by arrow signs) X2, what happen in A2 will affects X3 and so on. 
 
 ![Sequential assumption in Political campaign](seq.png)
 This paper uses an inverse probability weighting to create a weighted outcome and intermediate outcome.
 The estimator formula for IPWE is as follows:
 
-$$\hat{\mu}_{a,n} IPWE = \frac{1}{n} \sum_{i=1}^{n} Y_i \frac{1_{A=a}}{\hat{p}_{n}(A_i=a|X_i;\alpha)}     (1)$$
+$$\hat{\mu}_{a,n} IPWE = \frac{1}{n} \sum_{i=1}^{n} Y_i \frac{1_{A=a}}{\hat{p}_{n}(A_i=a|X_i;\alpha)} ..... (1)$$
 
 Where Where Y_i is proportion of negative ads in week i, and n is the number of observation. X_i is covariates, and A is a possible position (trailing or not).
 
-If estimated propensities are small, Inverse Probability Weighted Estimator (IPWE) can be unstable. Thus we also need to estimate stabilized weighted estimator. The formula is similar to estimator for IPSE above, but we use marginal probability of action, conditional on past action as numerator[@Black13].
+If estimated propensities are small, Inverse Probability Weighted Estimator (IPWE) can be unstable. Thus, we also need to estimate stabilized weighted estimator. The formula is similar to estimator for IPSE above, but we use marginal probability of action, conditional on past action as numerator [@Black13].
 
-$$\hat{\mu}_{a,n} IPWE = \frac{1}{n} \sum_{i=1}^{n} Y_i \frac{\hat{p}_{n}(A_i=a|X_i;\sigma)}{\hat{p}_{n}(A_i=a|X_i;\alpha)}    (2)$$
+$$\hat{\mu}_{a,n} IPWE = \frac{1}{n} \sum_{i=1}^{n} Y_i \frac{\hat{p}_{n}(A_i|A_i-1;\sigma)}{\hat{p}_{n}(A_i=a|X_i;\alpha)} ..... (2)$$
 
-Finally, to measure a time-varying Effects of polls position to negativity this study performs weighted regressions that account for time-varying confounders via marginal structural models as follow:
+Finally, to measure a time-varying effects of polls position to negativity this study performs weighted regressions that account for time-varying confounders via marginal structural models as follow:
 
-$$E[Y_i(a)] = \beta_0 + \beta_1 \left(\sum_{T=1}^{4} A_{it}\right) (3) $$
+$$E[Y_i(a)] = \beta_0 + \beta_1 \left(\sum_{T=1}^{4} A_{it}\right)  ..... (3) $$
 
-Where Y is outcome and T is the number of observed outcome (4 week) and A is a polls position (losing or not).
+Where Y is the weighted outcome, that is a weighted proportion of negative advertising by the end of campaign and T is the weighted 
+number of observed negative advertising observed (4 week) and A is a polls position (1 for losing or 0 for leading).
 
 Advertisement data were taken from Facebook Ads Library, selecting only political and issue advertisement that reached United States from September 27, 2020 to October 27, 2020. According to the Facebook Political Advertising policy, October 27 is the last day a candidate can post new advertisement and removing or changing the content of current active advertisements. Thus, this is the last day a candidate can respond to polling results. Any political advertisement on Facebook will be removed from Facebook a day before election day. 
 ```{r message=FALSE, eval=FALSE, echo=FALSE, results=FALSE}
@@ -327,7 +328,8 @@ var.state <- df.poll%>%
 var.state <- var.state$region
 ```
 
-The graphs below is created with *training* data that were randomly selected from the dataset. The training set is 60 percent of the main dataset. The number of political advertising doesn’t follow a normal distribution. The frequency peaked at the early days at near the end of the time frame. Assuming that the presidential race begins near the first presidential debate (September 29, 2020), we can see the pattern that candidates use online political advertising at the beginning and end of the campaign. The distribution of negative advertisements by days also shows us a similar pattern, with many advertisements at the beginning and near the end of the period. This pattern is consistent with a study from Senate primary in 1998 that negativity is most common at the beginning and end of campaigns when candidates try to establish themselves early and to seal the election at the very last minute[@Djupe05]. There is also a difference in the distribution of negative ads by a party. Republicans have a higher number of negative advertising during a campaign than a democrat. 
+The graphs below is created with *training* data that were randomly selected from the dataset. The training set is 60 percent of the main dataset. The number of political advertising doesn’t follow a normal distribution. The frequency peaked at the early days at near the end of the time frame. Assuming that the presidential race begins near the first presidential debate (September 29, 2020), we can see the pattern that candidates use online political advertising at the beginning and end of the campaign. The distribution of negative advertisements by days also shows us a similar pattern, with many advertisements at the beginning and near the end of the period. This pattern is consistent with a study from Senate primary in 1998 that negativity is most common at the beginning and end of campaigns when candidates try to establish themselves early and to seal the election at the very last minute[@Djupe05]. However, there is a possibility that this trend might also occured because second presidential debate was canceled. The number of advertising is peaked around the first (Tuesday, September 29, 2020) and third presidential debate (Thursday, October 22, 2020). Additionally, There is also a difference in the distribution of negative ads by a party. Republicans have a higher number of negative advertising during a campaign than a democrat. 
+
 ```{r echo=FALSE, cache=TRUE, message=FALSE}
 competitive.state <- df.poll %>%
   mutate(lead= dem-rep) %>%
@@ -487,11 +489,11 @@ iptw.Ex <- iptw(list(tx1 ~ use0 + party + region,
 
 ## unstabilized weights
 unstabWt1 <- get.weights.unstab(iptw.Ex)
-nTx <- with(data.panel.df, tx1 + tx2 + tx3)
+nAx <- with(data.panel.df, tx1 + tx2 + tx3)
 
-outDatUnstab <- data.frame(outcome = data.panel.df$outcome, nTx, wt = unstabWt1$es.max.ATE)
+outDatUnstab <- data.frame(outcome = data.panel.df$outcome, nAx, wt = unstabWt1$es.max.ATE)
 sv1unstab <- svydesign(~1, weights = ~wt, data = outDatUnstab)
-fitUnstab <- svyglm(outcome ~ nTx, sv1unstab)
+fitUnstab <- svyglm(outcome ~ nAx, sv1unstab)
 coef(fitUnstab)
 confint(fitUnstab)
 
@@ -501,9 +503,9 @@ fitList <- list(glm(tx1 ~ 1, family = binomial, data = data.panel.df),
                 glm(tx3 ~ tx1 + tx2, family = binomial, data = data.panel.df))
 numWt <- get.weights.num(iptw.Ex, fitList)
 stabWt1 <- unstabWt1 * numWt
-outDatStab <- data.frame(outcome = data.panel.df$outcome, nTx, wt = stabWt1$es.max.ATE)
+outDatStab <- data.frame(outcome = data.panel.df$outcome, nAx, wt = stabWt1$es.max.ATE)
 sv1stab <- svydesign(~1, weights = ~wt, data = outDatStab)
-fitStab <- svyglm(outcome ~ nTx, sv1stab)
+fitStab <- svyglm(outcome ~ nAx, sv1stab)
 coef(fitStab)
 confint(fitStab)
 
@@ -523,187 +525,180 @@ plot(iptw.Ex, plots = 2)
 
 ```{r message=FALSE, results=FALSE, echo=FALSE, cache=FALSE, error=FALSE, eval=FALSE}
 library(stargazer)
-stargazer(fitUnstab, type = "text", title = "Treatment Effect with Unstabilized weights ")
-stargazer(fitStab, type = "text", title = "Treatment Effect with Unstabilized weights ")
-stargazer(confint(fitStab), type = "text", title = "95% confidence interval of Unstabilized weighted treatment effect")
+stargazer(fitUnstab, fitStab, 
+          title = "Polls Position Effect to the Proportion of Negative Ads", 
+          column.labels = c("Unstabilized", "Stabilized"))
+stargazer(confint(fitStab), type = "text", title = "95% confidence interval of Unstabilized weighted Polls Position Coefficient")
 ```
-Finally, Using a unstabilized weighted regressions that account for time-varying confounders this study found that both of treatment and intercept is statistically significant at p.value <0.01. The coefficient for nTx (cumulative effect of treatment) is 0.061. It means that when polls shows that a candidate is trailing, the proportion of negative Facebook advertisement to a total advertisement is increased by 0.061 or 6.1 percent. There is an evidence that polls position affect the proportion of negative advertisement by a candidate. Positive coefficient means that there is a positive relationship between polls position and decision to go negative.
+Finally, Using a unstabilized weighted regressions that account for time-varying confounders this study found that both of polls position (nAx)  and intercept is statistically significant at p.value <0.01. The coefficient for nAx is 0.061. It means that when polls shows that a candidate is trailing, the proportion of negative Facebook advertisement to a total advertisement is increased by 0.061 or 6.1 percent. There is an evidence that polls position affect the proportion of negative advertisement by a candidate. Positive coefficient means that there is a positive relationship between polls position and decision to go negative.
 
 \begin{table}[!htbp] \centering 
-  \caption{Polls position Effect with Unstabilized weights } 
+  \caption{Polls Position Effect to the Proportion of Negative Ads} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\begin{tabular}{@{\extracolsep{5pt}}lcc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & outcome \\ 
+ & \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-3} 
+\\[-1.8ex] & \multicolumn{2}{c}{outcome} \\ 
+ & Unstabilized & Stabilized \\ 
+\\[-1.8ex] & (1) & (2)\\ 
 \hline \\[-1.8ex] 
- nTx & 0.061$^{***}$ \\ 
-  & (0.019) \\ 
-  & \\ 
- Constant & 0.140$^{***}$ \\ 
-  & (0.021) \\ 
-  & \\ 
+ nAx & 0.061$^{***}$ & 0.059$^{***}$ \\ 
+  & (0.019) & (0.019) \\ 
+  & & \\ 
+ Constant & 0.140$^{***}$ & 0.140$^{***}$ \\ 
+  & (0.021) & (0.020) \\ 
+  & & \\ 
 \hline \\[-1.8ex] 
-Observations & 60 \\ 
-Log Likelihood & 21.912 \\ 
-Akaike Inf. Crit. & $-$39.825 \\ 
+Observations & 60 & 60 \\ 
+Log Likelihood & 21.912 & 19.531 \\ 
+Akaike Inf. Crit. & $-$39.825 & $-$35.062 \\ 
 \hline 
 \hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\textit{Note:}  & \multicolumn{2}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
-\end{table}
+\end{table} 
 
-A similar result is shown when regression using at stabilized weight is performed. Both intercept and treatment effect is statistically significant at p.value<0.01. The coefficient for nTx (cumulative effect of treatment) is 0.059. It means that when polls shows that a candidate is trailing, the proportion of negative Facebook advertisement to a total advertisement is increased by 0.059 or 5.9 percent. There is an evidence that polls position affect the proportion of negative advertisement by a candidate. Positive coefficient means that there is a positive relationship between polls position and decision to go negative.
+A similar result is shown when regression using at stabilized weight is performed. Both intercept and polls position(nAx) is statistically significant at p.value<0.01. The coefficient for nAx is 0.059. It means that when polls shows that a candidate is trailing, the proportion of negative Facebook advertisement to a total advertisement is increased by 0.059 or 5.9 percent. There is an evidence that polls position affect the proportion of negative advertisement by a candidate. Positive coefficient means that there is a positive relationship between polls position and decision to go negative.
+
+T.test for both stabilezed and unstabilized weight show a corresponding confidence interval of polls position with $\alpha$ = 0.05. As expected, coefficient in stabilized weighted effect has a slightly wider interval than unstabilized weighted. 
 
 \begin{table}[!htbp] \centering 
-  \caption{Polls position Effect with Stabilized weights } 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & outcome \\ 
-\hline \\[-1.8ex] 
- nTx & 0.059$^{***}$ \\ 
-  & (0.019) \\ 
-  & \\ 
- Constant & 0.140$^{***}$ \\ 
-  & (0.020) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 60 \\ 
-Log Likelihood & 19.531 \\ 
-Akaike Inf. Crit. & $-$35.062 \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table}
-
-T.test for both stabilezed and unstabilized weight show a corresponding confidence interval with $\alpha$ = 0.05. As expected, stabilized weighted treatment effect has a slightly wider interval than unstabilized weighted treatment effect. 
-
-\begin{table}[!htbp] \centering 
-  \caption{95 percent confidence interval Weighted Treatment Effect} 
+  \caption{95 percent confidence interval Weighted Polls Position Effect} 
   \label{} 
 \begin{tabular}{@{\extracolsep{5pt}} ccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
  & 2.5 \% & 97.5 \% \\ 
 \hline \\[-1.8ex] 
-nTx (Unstabilized) & $0.024$ & $0.097$ \\ 
-nTx (Stabilized) & $0.021$ & $0.097$ \\ 
+nAx (Unstabilized) & $0.024$ & $0.097$ \\ 
+nAx (Stabilized) & $0.021$ & $0.097$ \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
 
 In term of model capabilities in explaining variance in outcome, unstabilized weighting can explain about 17 percent variation on the dataset with Rsquared = `r (1 - fitUnstab$deviance / fitUnstab$null.deviance)`. While stabilized weighting can explain about 22 percent variation on the dataset with Rsquared = `r (1 - fitStab$deviance / fitStab$null.deviance)`.
+\newpage
 
 **Candidate party ID effects on the model**  
 
-However, this paper did not find an evidence that candidate's party affects the proportion of negative advertisement in Facebook data. The table below shows that when regresion is performed on unstabilized weighted data, party variable has a p.value 0.2114, means that coefficient for party is not significant. 
-In this regression, polls position remain significant with p value = 0.0381, albeit with a higher alpha than a regression without candidate's party
+However, this paper did not find an overwhelming evidence that candidate's party affects the proportion of negative advertisement in Facebook data. The table below shows that when regresion is performed on unstabilized weighted data, 
+Without interaction term, candidate party nd polls position only significant at p-value <0.1. However, the model 
+fail to get significant p-value when we add interaction term between party and polls position.
 ```{r message=FALSE, results=FALSE, echo=FALSE, cache=TRUE, error=FALSE}
+## using region as covariate
+iptw.Ex <- iptw(list(tx1 ~ use0 +  region,
+                     tx2 ~ use1 + use0 + tx1 + region,
+                     tx3 ~ use2 + use1 + use0 + tx2 + tx1 + region),
+                timeInvariant ~ region,
+                data = data.panel.df,
+                cumulative = FALSE,
+                priorTreatment = FALSE,
+                verbose = FALSE,
+                stop.method = "es.max",
+                n.trees = 5000)
+
+## unstabilized weights
+unstabWt1 <- get.weights.unstab(iptw.Ex)
+nAx <- with(data.panel.df, tx1 + tx2 + tx3)
 ################ with party ##########
 ## unstabilized weights
 outDatUnstab <- data.frame(outcome = data.panel.df$outcome, 
-                           nTx, 
+                           nAx, 
                            party = data.panel.df$party,
                            wt = unstabWt1$es.max.ATE)
 sv1unstab <- svydesign(~1, weights = ~wt, data = outDatUnstab)
-fitUnstab.2 <- svyglm(outcome ~ nTx + party, sv1unstab)
-coef(fitUnstab.2)
-confint(fitUnstab.2)
+fitUnstab.2 <- svyglm(outcome ~ nAx+party, sv1unstab)
+fitUnstab.2.int <- svyglm(outcome ~ nAx*party, sv1unstab)
 summary(fitUnstab.2)
+summary(fitUnstab.2.int)
 # stabilized weights
+numWt <- get.weights.num(iptw.Ex, fitList)
+stabWt1 <- unstabWt1 * numWt
+
 outDatStab <- data.frame(outcome = data.panel.df$outcome,
-                         nTx,
+                         nAx,
                          party = data.panel.df$party,
                          wt = stabWt1$es.max.ATE)
 sv1stab <- svydesign(~1, weights = ~wt, data = outDatStab)
-fitStab.2 <- svyglm(outcome ~ nTx + party, sv1stab)
-coef(fitStab.2)
-confint(fitStab.2)
+fitStab.2 <- svyglm(outcome ~ nAx+party, sv1stab)
+fitStab.2.int <- svyglm(outcome ~ nAx*party, sv1stab)
+summary(fitStab.2)
+summary(fitStab.2.int)
 ```
 
 ```{r message=FALSE, results=FALSE, echo=FALSE, cache=FALSE, error=FALSE, eval=FALSE}
-library(stargazer)
-stargazer(fitUnstab.2, title = "Polls position and Party effect with Unstabilized weights ")
-stargazer(fitStab.2, title = "Polls position and Party effect Effect with Stabilized weights")
+stargazer(fitUnstab.2, fitUnstab.2.int, fitStab.2, fitStab.2.int,
+          title = "Polls position and Party Effect on Proportion of Negative Ads.",
+          column.labels = c("Unstabilized","Unstabilized w/ interaction","Stabilized","Stabilized w/ interaction"))
 ```
-\newpage
-\begin{table}[!htbp] \centering 
-  \caption{Polls position and Party effect with Unstabilized weights } 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & outcome \\ 
-\hline \\[-1.8ex] 
- nTx & 0.047$^{**}$ \\ 
-  & (0.022) \\ 
-  & \\ 
- partyR & 0.064 \\ 
-  & (0.051) \\ 
-  & \\ 
- Constant & 0.128$^{***}$ \\ 
-  & (0.020) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 60 \\ 
-Log Likelihood & 22.816 \\ 
-Akaike Inf. Crit. & $-$39.632 \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table}
 
-Similarly, regression with stabilized weighting also found that candidate party was not statistically significant with p value = 0.772. Position polls (nTx) also remain significant with p value =  0.021.
+Regression with stabilized weighting found that candidate's party was not statistically significant while  
+position polls (nAx) also remain significant at p-value<0.05. Similar to the regression with unstabilized
+weighting, we found that both polls position and candidate's party is unsignificant predictor when we add
+interaction term.
+
 \begin{table}[!htbp] \centering 
-  \caption{Polls position and Party effect Effect with Stabilized weights} 
+  \caption{Polls position and Party Effect on Proportion of Negative Ads.} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & outcome \\ 
+ & \multicolumn{4}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-5} 
+\\[-1.8ex] & \multicolumn{4}{c}{outcome} \\ 
+ & Unstabilized & Unstabilized w/ interaction & Stabilized & Stabilized w/ interaction \\ 
+\\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
 \hline \\[-1.8ex] 
- nTx & 0.063$^{**}$ \\ 
-  & (0.027) \\ 
-  & \\ 
- partyR & $-$0.018 \\ 
-  & (0.062) \\ 
-  & \\ 
- Constant & 0.144$^{***}$ \\ 
-  & (0.012) \\ 
-  & \\ 
+ nAx & 0.038$^{*}$ & 0.022 & 0.057$^{**}$ & 0.014 \\ 
+  & (0.022) & (0.016) & (0.027) & (0.018) \\ 
+  & & & & \\ 
+ partyR & 0.113$^{*}$ & 0.080 & 0.009 & $-$0.014 \\ 
+  & (0.060) & (0.084) & (0.062) & (0.070) \\ 
+  & & & & \\ 
+ nAx:partyR &  & 0.026 &  & 0.051 \\ 
+  &  & (0.037) &  & (0.035) \\ 
+  & & & & \\ 
+ Constant & 0.130$^{***}$ & 0.141$^{***}$ & 0.141$^{***}$ & 0.148$^{***}$ \\ 
+  & (0.020) & (0.015) & (0.014) & (0.014) \\ 
+  & & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 60 \\ 
-Log Likelihood & 19.588 \\ 
-Akaike Inf. Crit. & $-$33.176 \\ 
+Observations & 60 & 60 & 60 & 60 \\ 
+Log Likelihood & 18.302 & 18.446 & 18.664 & 18.967 \\ 
+Akaike Inf. Crit. & $-$30.605 & $-$28.892 & $-$31.328 & $-$29.934 \\ 
 \hline 
 \hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\textit{Note:}  & \multicolumn{4}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
 
+The finding however, might be a reasonable result. We argue that candidate party might not be a significant 
+predictor due to lack  of variance in polls position by candidate party. In the three weeks of US presidential
+Election in our dataset, polls position in competitive states were mostly dominated by Democrat. In a competitive 
+states, Republican was only consistently leading in Ohio and putting a fight on Arizona, Georgia, Iowa, Nebraska, 
+and Texas.
+\newpage
+
+```{r message=FALSE, results=FALSE, echo=FALSE, cache=FALSE, error=FALSE}
+library(tidyverse)
+losingposition.byparty <- data.panel.df %>%
+  group_by(party) %>%
+  summarise(tx1 = mean(tx1),
+            tx2 = mean(tx2),
+            tx3 = mean(tx3))
+```
 
 # Discussion and result
-Exploratory analysis using training set shows that there might be a relationship between polls position and negative advertising at the national level. at the start of the campaigning, democrat are inherently more negative than republican. However, as campaign goes on polls position favor a democrat, thus push republican to go more negative. We can see that as time goes by, the proportion of negative advertisemnt by democrat is decreasing while the opponent is increasing. This might illustrate that losing candidate engage in more negative advertising as respond to a polls position, or at the very least going more negative than before.
+Exploratory analysis using training set shows that there might be a relationship between polls position and negative advertising at the national level. at the start of the campaigning, democrat are inherently more negative than republican. As campaign goes on, however, polls position favor a democrat. This circumtances thus push republican to go more negative. We can see that as time goes by, the proportion of negative advertisemnt by democrat is decreasing while their opponent is increasing. This might illustrate that losing candidate engage in more negative advertising as respond to a polls position, or at the very least going more negative than before.
 
-The dynamic approach shows evidence that the polling position affects the proportion of negative advertising in a political campaign. The relationship is positive, means that being in a trailing position, the candidate will have a higher proportion of negative advertisement on Facebook than before. Additionally, there is no evidence that candidate party affects the proportion of negative advertisement on Facebook.
+In confirmatory analysis, the dynamic approach shows evidences that the polling position affects the proportion of negative advertising in a political campaign. The relationship is positive, means that being in a trailing position, the candidate will have a higher proportion of negative advertisement on Facebook than before. Additionally, there is no compelling evidence that candidate party affects the proportion of negative advertisement on Facebook.
 
 However, several limitations have to be acknowledged. Firstly, we have to remember that we only use simple content labeling when defining negativity: which one mentions other candidate presidents or vice presidents. We do not assume that every time a candidate mention an opponent, they intend to attack them in some sort of way. We do not differentiate whether the message is fair or not in the context of an election. Thus negativity in this research can not be interpreted as unfair or immoral advertisements that attack other candidates.
 
 Having a firm and straightforward definition of negativity, it is still possible for a negative advertisement in this dataset to appear as positive. For example, an advertisement may contain only a picture of an opponent embedded with attacking a caption without mentioning the opponent's name in the advertisements' title and body. The same case will happen if advertisers use video or link to a different website without captioning. Therefore, this study might underestimate the number of negative advertising on Facebook political advertising. 
 
-Secondly, there might be other confounding variables that are not included in the dataset. While the treatment effect is statistically significant Model can only explain a 17 percent variation in outcome using unstabilized weighting (or 22 percent with stabilized weighting). One possibility is an election debate. The number of advertisements is increased around the time of the first and third presidential debates. Furthermore, we see a declining number of advertisements around the second presidential debate, which were canceled.
+Secondly, there might be other confounding variables that are not included in the dataset. While the polls position is statistically significant, the model can only explain about 17 percent variation in outcome using unstabilized weighting (or 22 percent with stabilized weighting). One possibile confounder is an election debate. The number of advertisements is increased around the time of the first and third presidential debates. However, we see a declining number of advertisements around the second presidential debate, which were canceled.
 \newpage
 
 # References 
